@@ -735,3 +735,260 @@ It’ll execute the __sleep() method before serializing the object. The __sleep(
   $memberString = serialize( $member );
   echo $memberString;
   ```
+
+## Traits
+PHP only supports single inheritance: a child class can inherit only from one single parent. So, what if a class needs to inherit multiple behaviors? OOP traits solve this problem.
+
+```php
+/**
+ * Trait
+ */
+trait testTrait{
+    public function sayHello()
+    {
+        return "Hello \n";
+    }
+    public function sayWorld()
+    {
+        return "World \n";
+    }
+}
+class Test{
+ use testTrait;
+}
+$obj = new Test();
+echo $obj->sayHello();
+echo $obj->sayWorld();
+```
+
+```php
+/**
+ * Trait with precedence: child -> trait -> parent
+ */
+class ParentClass{
+    public function sayHello()
+    {
+        return "I'm from parent class. \n";
+    }
+}
+trait TestTrait{
+    public function sayHello()
+    {
+        return "I'm from trait class. \n";
+    }
+}
+class ChildClass extends ParentClass{
+    use TestTrait;
+    public function sayHello()
+    {
+        return "I'm from child class. \n";
+    }
+}
+
+$obj = new ChildClass();
+echo $obj->sayHello();
+```
+```php
+/**
+ * Multiple traits example 1
+ */
+trait Subscriber{
+    public function subscriberlogin()
+    {
+        echo "You're logged in as a Subscriber. \n";
+    }
+}
+trait Contributor{
+    public function contributorlogin()
+    {
+        echo "You're logged in as a Contributor. \n";
+    }
+}
+trait Author{
+    public function authorlogin()
+    {
+        echo "You're logged in as a Author. \n";
+    }
+}
+trait Administrator{
+    public function administratorlogin()
+    {
+        echo "You're logged in as a Administrator. \n";
+    }
+}
+
+class Member{
+    use Subscriber, Contributor, Author, Administrator;
+    public function run()
+    {
+        $this->subscriberlogin();
+        $this->contributorlogin();
+        $this->authorlogin();
+        $this->administratorlogin();
+    }
+}
+
+$obj = new Member();
+echo $obj->run();
+```
+```php
+/**
+ * Multiple trait example 2
+ */
+trait Hello{
+    public function sayHello()
+    {
+        echo "Hello ";
+    }
+}
+trait World{
+    public function sayWorld()
+    {
+        echo "World";
+    }
+}
+trait HelloWorld{
+    use Hello, World;
+}
+
+class Test {
+    use HelloWorld;
+}
+
+$world = new Test();
+echo $world->sayHello() . " " . $world->sayWorld()
+```
+
+```php
+/**
+ * Trait conflict resolution
+ */
+
+trait testTrait1{
+    public function sayHello()
+    {
+        echo "I'm from Test Trait 1. \n";
+    }
+}
+trait testTrait2{
+    public function sayHello()
+    {
+        echo "I'm from Test Trait 2. \n";
+    }
+}
+class Test{
+    use testTrait1, testTrait2{
+        testTrait1:: sayHello insteadOf testTrait2;
+        testTrait2:: sayHello as sayHello2;
+    }
+}
+$obj = new Test();
+$obj->sayHello();
+$obj->sayHello2();
+```
+```php
+/**
+ * Trait static property and method
+ */
+trait Fruits{
+    public $banana = 101;
+    public $mango = 202;
+    static public $apple = 301;
+    public static function getMessage(){
+        return self::$apple;
+    }
+}
+class Test{
+    use Fruits;
+}
+echo Test::$apple;
+echo "\n";
+echo Test::getMessage();
+```
+```php
+/**
+ * Trait abstract method
+ */
+trait testTrait{
+    abstract function getMessage();
+}
+class Test{
+    use testTrait;
+    public function getMessage()
+    {
+        echo "Hello! I am abstract method. \n"; 
+    }
+}
+$obj = new Test();
+$obj->getMessage();
+```
+
+## Anonymouse Class
+An anonymous class is a class without a declared name. 
+
+```php
+/***
+ * Anonymous Class 
+*/ 
+$test = (new class {
+    public function log(){
+        echo "Hello! I'm anonymous class.";
+    }
+});
+echo $test->log();
+```
+```php
+/**
+ * Anonymous class with arguments
+ */
+$msg = "Hello! I'm default arguments. \n";
+$test = (new class($msg){
+    public function log($msg){
+        return $msg;
+    }
+});
+echo $test->log("Hello! I'm anonymous class.");
+```
+```php
+// __"Interface, trait, class" use in an anonymous class__
+/**
+ * interface
+ */
+interface testInterface{
+    public function getMessage();
+}
+/**
+ * Trait
+ */
+trait testTrait{
+    public function sayHello(){
+        return "Hello! I'm from trait. \n";
+    }
+}
+/**
+ * Class that will be extended
+ */
+class ParentClass{
+    public function __construct($msg)
+    {
+        echo $msg;
+    }
+}
+
+$msg = "This class extends ParentClass. \n";
+
+$test = (new class ($msg) extends ParentClass implements testInterface{
+    public function log($msg){
+        return $msg;
+    }
+    public function getMessage()
+    {
+        return "I'm actually from interface. \n";
+    }
+    use testTrait;
+});
+
+echo $test->log("Hello! I'm anonymous class \n");
+echo $test->getMessage();
+echo $test->sayHello();
+```
